@@ -11,6 +11,7 @@ A full-stack MERN (MongoDB, Express, React, Node.js) application for managing pr
 - 🎯 **Streak Tracking** - Track your daily activity streak
 - 📈 **Analytics** - View tasks by status and priority
 - 🎨 **Beautiful UI** - Modern, responsive design with custom CSS
+  
 
 ## Tech Stack
 
@@ -95,7 +96,7 @@ Start the frontend:
 npm start
 ```
 
-The frontend will run on `http://localhost:3000`
+The frontend will run on `http://localhost:5000`
 
 ## Usage
 
@@ -166,7 +167,7 @@ npm run dev  # Uses nodemon for auto-restart
 ### Frontend Development
 ```bash
 cd frontend
-npm start  # Runs on http://localhost:3000
+npm start  # Runs on http://localhost:5000
 ```
 
 ## Production Build
@@ -190,4 +191,12 @@ Jayendhran1811
 ---
 
 Happy coding! 🚀
+
+Screen Shots
+<img width="1894" height="822" alt="image" src="https://github.com/user-attachments/assets/3703f574-88fb-4a32-acd1-0b3958c03174" />
+
+<img width="1890" height="639" alt="image" src="https://github.com/user-attachments/assets/6f129da6-fc2a-4dcf-bb65-bda9fe2f7103" />
+
+<img width="1891" height="821" alt="image" src="https://github.com/user-attachments/assets/d07f0e53-1eae-4359-bba2-90f690b742d3" />
+
 
