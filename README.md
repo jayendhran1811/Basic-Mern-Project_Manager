@@ -52,9 +52,9 @@ Create a `.env` file in the `backend` directory:
 
 ```env
 PORT=5000
-MONGODB_URI=mongodb://localhost:27017/projectmanagement
-JWT_SECRET=your_super_secret_jwt_key_change_this_in_production
-NODE_ENV=development
+MONGODB_URI= mongodb link
+JWT_SECRET
+NODE_ENV
 ```
 
 Start MongoDB (if running locally):
@@ -185,7 +185,7 @@ ISC
 
 ## Author
 
-Your Name
+Jayendhran1811
 
 ---
 
