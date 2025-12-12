@@ -191,12 +191,3 @@ Jayendhran1811
 ---
 
 Happy coding! 🚀
-
-Screen Shots
-<img width="1894" height="822" alt="image" src="https://github.com/user-attachments/assets/3703f574-88fb-4a32-acd1-0b3958c03174" />
-
-<img width="1890" height="639" alt="image" src="https://github.com/user-attachments/assets/6f129da6-fc2a-4dcf-bb65-bda9fe2f7103" />
-
-<img width="1891" height="821" alt="image" src="https://github.com/user-attachments/assets/d07f0e53-1eae-4359-bba2-90f690b742d3" />
-
-
