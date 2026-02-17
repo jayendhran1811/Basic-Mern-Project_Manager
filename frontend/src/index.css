@@ -1,59 +1,212 @@
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 210 40% 98%;
+    --foreground: 222.2 84% 4.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+    --primary: 262 90% 60%;
+    --primary-foreground: 210 40% 98%;
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 222.2 47.4% 11.2%;
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+    --accent: 210 40% 96.1%;
+    --accent-foreground: 222.2 47.4% 11.2%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 262 90% 60%;
+    --radius: 0.75rem;
+
+    /* Professional Design System Tokens */
+    --sidebar-width: 280px;
+    --sidebar-collapsed-width: 80px;
+    --header-height: 72px;
+
+    --surface: #ffffff;
+    --surface-hover: #f8fafc;
+    --border-main: #e2e8f0;
+    --border-subtle: #f1f5f9;
+
+    --text-main: #0f172a;
+    --text-muted: #64748b;
+
+    /* Sidebar - Fixed to Black in Light Mode */
+    --sidebar-bg: #000000;
+    --sidebar-text: #ffffff;
+    --sidebar-text-muted: #a1a1aa;
+    --sidebar-hover: #18181b;
+    --sidebar-border: #27272a;
+    --sidebar-active-bg: #27272a;
+    --sidebar-active-text: #ffffff;
+
+    --primary-subtle: rgba(139, 92, 246, 0.1);
+    --primary-hover: #7c3aed;
+
+    --success: #10b981;
+    --warning: #f59e0b;
+    --danger: #ef4444;
+
+    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.12);
+    --shadow-premium: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+
+    --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+    --radius-md: 8px;
+    --radius-lg: 12px;
+    --radius-xl: 16px;
+  }
+
+  .dark-mode {
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 262 90% 70%;
+    --primary-foreground: 222.2 47.4% 11.2%;
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 262 90% 70%;
+
+    --surface: #0f172a;
+    --surface-hover: #1e293b;
+    --border-main: #1e293b;
+    --border-subtle: #334155;
+
+    --text-main: #f8fafc;
+    --text-muted: #94a3b8;
+
+    /* Sidebar in Dark Mode - Slightly different black */
+    --sidebar-bg: #000000;
+    --sidebar-text: #ffffff;
+    --sidebar-text-muted: #94a3b8;
+    --sidebar-hover: #0f172a;
+    --sidebar-border: #1e293b;
+    --sidebar-active-bg: #1e293b;
+    --sidebar-active-text: #ffffff;
+
+    --shadow-premium: 0 10px 25px -5px rgba(0, 0, 0, 0.3), 0 8px 10px -6px rgba(0, 0, 0, 0.3);
+  }
 }
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+@layer base {
+  * {
+    @apply border-border;
+  }
 
-:root {
-  --bg: #f3e9df;
-  --surface: #f8f2eb;
-  --card-bg: #ffffff;
-  --text-primary: #2d1f17;
-  --text-muted: #6b6057;
-  --border-subtle: rgba(45, 31, 23, 0.08);
-  --pill-bg: #f0e5d9;
-  --shadow-md: 0 15px 40px rgba(0, 0, 0, 0.12);
+  body {
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    margin: 0;
+    padding: 0;
+  }
 }
 
-body[data-theme='light'] {
-  --bg: #f3e9df;
-  --surface: #f8f2eb;
-  --card-bg: #ffffff;
-  --text-primary: #2d1f17;
-  --text-muted: #6b6057;
-  --border-subtle: rgba(45, 31, 23, 0.08);
-  --pill-bg: #f0e5d9;
-  --shadow-md: 0 12px 30px rgba(0, 0, 0, 0.1);
-  background: #f3e9df;
-  color: #2d1f17;
-}
-
-body[data-theme='dark'] {
-  --bg: #0b1221;
-  --surface: #0f172a;
-  --card-bg: #111827;
-  --text-primary: #e5e7eb;
-  --text-muted: #9ca3af;
-  --border-subtle: rgba(255, 255, 255, 0.08);
-  --pill-bg: rgba(255, 255, 255, 0.08);
-  --shadow-md: 0 15px 40px rgba(0, 0, 0, 0.35);
-  background: radial-gradient(circle at top, #1e293b 0, #0b1221 45%, #050913 100%);
-  color: #e5e7eb;
-}
-
-body {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+/* App Shell Layout */
+.app-shell {
+  display: flex;
   min-height: 100vh;
+  width: 100%;
 }
 
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
+.main-content {
+  flex: 1;
+  min-width: 0;
+  /* Fix flex child overflow */
+  transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  background-color: hsl(var(--background));
 }
 
+.sidebar-expanded .main-content {
+  margin-left: var(--sidebar-width);
+}
+
+.sidebar-collapsed .main-content {
+  margin-left: var(--sidebar-collapsed-width);
+}
+
+.auth-shell .main-content {
+  margin-left: 0 !important;
+}
+
+/* Desktop-only margin, mobile uses overlay */
+@media (max-width: 1024px) {
+
+  .sidebar-expanded .main-content,
+  .sidebar-collapsed .main-content {
+    margin-left: 0;
+  }
+
+  .mobile-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(2px);
+    z-index: 999;
+    animation: fadeIn 0.2s ease-out;
+  }
+}
+
+.system-loading {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: var(--background);
+  gap: 16px;
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid var(--border-subtle);
+  border-top-color: var(--primary);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: hsl(var(--background));
+}
+
+::-webkit-scrollbar-thumb {
+  background: hsl(var(--border));
+  border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--muted-foreground));
+}

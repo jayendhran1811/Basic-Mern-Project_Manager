@@ -4,8 +4,12 @@ const trackerSchema = new mongoose.Schema({
   userId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
-    required: true,
-    unique: true
+    required: true
+  },
+  organizationId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Organization',
+    required: true
   },
   stats: {
     totalProjects: {
@@ -33,6 +37,10 @@ const trackerSchema = new mongoose.Schema({
         type: Number,
         default: 0
       },
+      blocked: {
+        type: Number,
+        default: 0
+      },
       completed: {
         type: Number,
         default: 0
@@ -52,7 +60,7 @@ const trackerSchema = new mongoose.Schema({
         default: 0
       }
     },
-    streak: {
+    totalHoursWorked: {
       type: Number,
       default: 0
     },
@@ -60,14 +68,10 @@ const trackerSchema = new mongoose.Schema({
       type: Date
     }
   },
-  achievements: [{
-    name: String,
-    description: String,
-    unlockedAt: {
-      type: Date,
-      default: Date.now
-    }
-  }],
+  createdAt: {
+    type: Date,
+    default: Date.now
+  },
   updatedAt: {
     type: Date,
     default: Date.now

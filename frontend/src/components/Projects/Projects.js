@@ -1,310 +1,295 @@
 import React, { useState, useEffect } from 'react';
-import api from '../../utils/api';
-import ProjectModal from './ProjectModal';
-import TaskModal from './TaskModal';
-import { getUser } from '../../utils/auth';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../contexts/AuthContext';
+import {
+  Briefcase,
+  Folder,
+  Plus,
+  ChevronRight,
+  Search,
+  Filter,
+  Users,
+  Calendar,
+  MoreVertical,
+  Activity,
+  CheckCircle2,
+  ExternalLink,
+  GitBranch,
+  Settings,
+  X
+} from 'lucide-react';
+import { projectsAPI } from '../../utils/apiClient';
 import './Projects.css';
 
 const Projects = () => {
+  const { user } = useAuth();
   const [projects, setProjects] = useState([]);
   const [selectedProject, setSelectedProject] = useState(null);
-  const [tasks, setTasks] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [showProjectModal, setShowProjectModal] = useState(false);
-  const [showTaskModal, setShowTaskModal] = useState(false);
-  const [editingProject, setEditingProject] = useState(null);
-  const [editingTask, setEditingTask] = useState(null);
-   const [users, setUsers] = useState([]);
-  const currentUser = getUser();
-  const avatarUrl = currentUser?.avatarUrl || '/Header_pic.jpg';
+  const [projectSearch, setProjectSearch] = useState('');
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [editFormData, setEditFormData] = useState({ title: '', description: '', repositoryUrl: '' });
+  const [toast, setToast] = useState({ show: false, message: '', type: 'success' });
+
+  const showToast = (message, type = 'success') => {
+    setToast({ show: true, message, type });
+    setTimeout(() => setToast({ show: false, message: '', type: 'success' }), 3000);
+  };
 
   useEffect(() => {
+    const fetchProjects = async () => {
+      try {
+        const response = await projectsAPI.getAll();
+        setProjects(response.data || []);
+        if (response.data?.length > 0) {
+          setSelectedProject(response.data[0]);
+        }
+      } catch (error) {
+        console.error('Error fetching projects:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
     fetchProjects();
-    fetchUsers();
   }, []);
 
-  const fetchProjects = async () => {
-    try {
-      const res = await api.get('/projects');
-      setProjects(res.data);
-    } catch (error) {
-      console.error('Error fetching projects:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const fetchTasks = async (projectId) => {
-    try {
-      const res = await api.get(`/tasks/project/${projectId}`);
-      setTasks(res.data);
-    } catch (error) {
-      console.error('Error fetching tasks:', error);
-    }
-  };
-
-  const fetchUsers = async () => {
-    try {
-      if (currentUser?.role === 'admin') {
-        const res = await api.get('/auth/users');
-        setUsers(res.data);
-      } else if (currentUser) {
-        setUsers([currentUser]);
-      }
-    } catch (error) {
-      console.error('Error fetching users:', error);
-    }
-  };
-
-  const handleProjectClick = async (project) => {
-    setSelectedProject(project);
-    await fetchTasks(project._id);
-  };
+  const filteredProjects = projects.filter(p =>
+    p.title.toLowerCase().includes(projectSearch.toLowerCase())
+  );
 
   const handleCreateProject = () => {
-    setEditingProject(null);
-    setShowProjectModal(true);
+    showToast("Opening architectural setup wizard...", "info");
   };
 
-  const handleEditProject = (project) => {
-    setEditingProject(project);
-    setShowProjectModal(true);
+  const handleManageAll = () => {
+    showToast("Synchronizing component lifecycle...", "info");
   };
 
-  const handleCreateTask = () => {
-    if (!selectedProject) return;
-    setEditingTask(null);
-    setShowTaskModal(true);
+  const handleEditClick = () => {
+    setEditFormData({
+      title: selectedProject.title,
+      description: selectedProject.description || '',
+      repositoryUrl: selectedProject.repositoryUrl || ''
+    });
+    setIsEditModalOpen(true);
   };
 
-  const handleEditTask = (task) => {
-    setEditingTask(task);
-    setShowTaskModal(true);
-  };
-
-  const handleDeleteProject = async (projectId) => {
-    if (!window.confirm('Are you sure you want to delete this project?')) return;
-    
+  const handleUpdateProject = async (e) => {
+    e.preventDefault();
     try {
-      await api.delete(`/projects/${projectId}`);
-      fetchProjects();
-      if (selectedProject?._id === projectId) {
-        setSelectedProject(null);
-        setTasks([]);
-      }
+      await projectsAPI.update(selectedProject._id, editFormData);
+
+      // Update local state
+      const updatedProjects = projects.map(p =>
+        p._id === selectedProject._id ? { ...p, ...editFormData } : p
+      );
+      setProjects(updatedProjects);
+      setSelectedProject({ ...selectedProject, ...editFormData });
+
+      setIsEditModalOpen(false);
+      showToast('Repository updated successfully!', 'success');
     } catch (error) {
-      console.error('Error deleting project:', error);
+      console.error('Error updating project:', error);
+      showToast('Failed to update repository.', 'error');
     }
   };
 
-  const handleDeleteTask = async (taskId) => {
-    if (!window.confirm('Are you sure you want to delete this task?')) return;
-    
-    try {
-      await api.delete(`/tasks/${taskId}`);
-      if (selectedProject) {
-        await fetchTasks(selectedProject._id);
-      }
-    } catch (error) {
-      console.error('Error deleting task:', error);
-    }
-  };
-
-  const handleModalClose = () => {
-    setShowProjectModal(false);
-    setShowTaskModal(false);
-    setEditingProject(null);
-    setEditingTask(null);
-    fetchProjects();
-    if (selectedProject) {
-      fetchTasks(selectedProject._id);
-    }
-  };
-
-  if (loading) {
-    return <div className="projects-loading">Loading projects...</div>;
-  }
+  if (loading) return <div className="projects-loading">Accessing project repositories...</div>;
 
   return (
-    <div className="projects">
-      <div className="projects-container">
-        <div className="projects-header">
-          <h1>My Projects</h1>
-          <div className="projects-profile">
-            <div className="projects-avatar" style={{ backgroundImage: `url(${avatarUrl})` }} />
-            <div>
-              <p className="label">Signed in</p>
-              <p className="value">{currentUser?.username}</p>
-              <span className={`pill ${currentUser?.role === 'admin' ? 'pill-warn' : ''}`}>{currentUser?.role}</span>
-            </div>
-          </div>
-          <button onClick={handleCreateProject} className="btn-primary">
-            + New Project
-          </button>
+    <div className="projects-page-professional">
+      <div className="projects-sidebar-professional">
+        <div className="sidebar-header-projects">
+          <h2><Folder size={20} /> Repositories</h2>
+          {user.designation === 'Manager' && (
+            <button className="btn-icon-minimal" onClick={handleCreateProject}><Plus size={18} /></button>
+          )}
         </div>
-
-        <div className="projects-layout">
-          <div className="projects-sidebar">
-            <h2>Projects ({projects.length})</h2>
-            {projects.length === 0 ? (
-              <div className="empty-state">
-                <p>No projects yet. Create your first project!</p>
-              </div>
-            ) : (
-              <div className="projects-list">
-                {projects.map(project => (
-                  <div
-                    key={project._id}
-                    className={`project-item ${selectedProject?._id === project._id ? 'active' : ''}`}
-                    onClick={() => handleProjectClick(project)}
-                  >
-                    <div className="project-item-content">
-                      <h3>{project.title}</h3>
-                      <p>{project.description || 'No description'}</p>
-                      <div className="project-item-meta">
-                        <span className={`status-badge status-${project.status}`}>
-                          {project.status}
-                        </span>
-                      </div>
-                    </div>
-                    <div className="project-item-actions">
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleEditProject(project);
-                        }}
-                        className="btn-icon"
-                      >
-                        ✏️
-                      </button>
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleDeleteProject(project._id);
-                        }}
-                        className="btn-icon"
-                      >
-                        🗑️
-                      </button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-
-          <div className="projects-main">
-            {selectedProject ? (
-              <>
-                <div className="project-detail-header">
-                  <div>
-                    <h2>{selectedProject.title}</h2>
-                    <p>{selectedProject.description || 'No description'}</p>
-                    <div className="project-detail-meta">
-                      <span className={`status-badge status-${selectedProject.status}`}>
-                        {selectedProject.status}
-                      </span>
-                      <span className={`priority-badge priority-${selectedProject.priority}`}>
-                        {selectedProject.priority}
-                      </span>
-                    </div>
-                  </div>
-                  <button onClick={handleCreateTask} className="btn-primary">
-                    + New Task
-                  </button>
+        <div className="search-sidebar">
+          <Search size={16} />
+          <input
+            type="text"
+            placeholder="Find project..."
+            value={projectSearch}
+            onChange={(e) => setProjectSearch(e.target.value)}
+          />
+        </div>
+        <div className="project-list-sidebar">
+          {filteredProjects.length === 0 ? (
+            <div style={{ padding: '20px', fontSize: '12px', color: 'var(--text-muted)' }}>No repositories found</div>
+          ) : (
+            filteredProjects.map(p => (
+              <div
+                key={p._id}
+                className={`project-item-sidebar ${selectedProject?._id === p._id ? 'active' : ''}`}
+                onClick={() => setSelectedProject(p)}
+              >
+                <div className="project-item-icon">
+                  {p.title.charAt(0).toUpperCase()}
                 </div>
-
-                <div className="tasks-section">
-                  <h3>Tasks ({tasks.length})</h3>
-                  {tasks.length === 0 ? (
-                    <div className="empty-state">
-                      <p>No tasks yet. Create your first task!</p>
-                    </div>
-                  ) : (
-                    <div className="tasks-list">
-                      {tasks.map(task => (
-                        <div key={task._id} className="task-item">
-                          <input
-                            type="checkbox"
-                            checked={task.status === 'completed'}
-                            onChange={async (e) => {
-                              try {
-                                await api.put(`/tasks/${task._id}`, {
-                                  ...task,
-                                  status: e.target.checked ? 'completed' : 'todo'
-                                });
-                                await fetchTasks(selectedProject._id);
-                              } catch (error) {
-                                console.error('Error updating task:', error);
-                              }
-                            }}
-                          />
-                          <div className="task-content">
-                            <h4 className={task.status === 'completed' ? 'completed' : ''}>
-                              {task.title}
-                            </h4>
-                            <p>{task.description || 'No description'}</p>
-                            <div className="task-meta">
-                              <span className={`status-badge status-${task.status}`}>
-                                {task.status}
-                              </span>
-                              <span className={`priority-badge priority-${task.priority}`}>
-                                {task.priority}
-                              </span>
-                            {task.assigneeId && (
-                              <span className="assignee-chip">
-                                Assigned to {task.assigneeId.username || 'User'}
-                              </span>
-                            )}
-                            </div>
-                          </div>
-                          <div className="task-actions">
-                            <button
-                              onClick={() => handleEditTask(task)}
-                              className="btn-icon"
-                            >
-                              ✏️
-                            </button>
-                            <button
-                              onClick={() => handleDeleteTask(task._id)}
-                              className="btn-icon"
-                            >
-                              🗑️
-                            </button>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
+                <div className="project-item-info">
+                  <div className="title-row">
+                    <h3>{p.title}</h3>
+                    {p.repositoryUrl && <GitBranch size={10} className="repo-indicator" />}
+                  </div>
+                  <p>{p.status}</p>
                 </div>
-              </>
-            ) : (
-              <div className="no-selection">
-                <p>Select a project to view its tasks</p>
+                <ChevronRight size={14} className="chevron" />
               </div>
-            )}
-          </div>
+            ))
+          )}
         </div>
       </div>
 
-      {showProjectModal && (
-        <ProjectModal
-          project={editingProject}
-          onClose={handleModalClose}
-        />
+      <main className="projects-main-professional">
+        {selectedProject ? (
+          <div className="project-detail-container">
+            <header className="project-detail-header">
+              <div className="header-breadcrumbs">
+                <span>Projects</span>
+                <ChevronRight size={14} />
+                <span className="current">{selectedProject.title}</span>
+              </div>
+              <div className="header-main-info">
+                <h1>{selectedProject.title}</h1>
+                <div className="project-status-badge">
+                  <Activity size={14} />
+                  <span>{selectedProject.status}</span>
+                </div>
+                {user.designation === 'Manager' && (
+                  <button className="btn-edit-minimal" onClick={handleEditClick}>
+                    <Settings size={14} />
+                    <span>Settings</span>
+                  </button>
+                )}
+              </div>
+              <p className="project-desc-professional">{selectedProject.description || 'No system description provided for this repository.'}</p>
+
+              {selectedProject.repositoryUrl && (
+                <div className="repo-link-wrapper">
+                  <a
+                    href={selectedProject.repositoryUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="btn-repo-link"
+                  >
+                    <GitBranch size={16} />
+                    <span>View Bitbucket Repository</span>
+                    <ExternalLink size={14} />
+                  </a>
+                </div>
+              )}
+
+              <div className="project-meta-grid">
+                <div className="meta-box">
+                  <Users size={18} />
+                  <div>
+                    <span className="meta-label">Team Members</span>
+                    <span className="meta-value">12 Collaborators</span>
+                  </div>
+                </div>
+                <div className="meta-box">
+                  <Calendar size={18} />
+                  <div>
+                    <span className="meta-label">Release Deadline</span>
+                    <span className="meta-value">Nov 12, 2024</span>
+                  </div>
+                </div>
+                <div className="meta-box">
+                  <CheckCircle2 size={18} />
+                  <div>
+                    <span className="meta-label">Completion Status</span>
+                    <span className="meta-value">68% Finalized</span>
+                  </div>
+                </div>
+              </div>
+            </header>
+
+            <section className="project-tasks-section">
+              <div className="section-header">
+                <h2>Active Components</h2>
+                <button className="btn-secondary-minimal" onClick={handleManageAll}>Manage All</button>
+              </div>
+              <div className="tasks-list-minimal">
+                {[1, 2, 3].map(i => (
+                  <div key={i} className="task-row-minimal">
+                    <div className="task-check-icon"><div className="dot"></div></div>
+                    <div className="task-title-minimal">Component Integration Test #{i}</div>
+                    <div className="task-assignee">
+                      <div className="avatar-stack">
+                        <div className="avatar-xs">J</div>
+                        <div className="avatar-xs">M</div>
+                      </div>
+                    </div>
+                    <div className="task-due-date">3 days left</div>
+                    <button className="btn-icon-minimal" onClick={() => showToast("Accessing component parameters...", "info")}><MoreVertical size={16} /></button>
+                  </div>
+                ))}
+              </div>
+            </section>
+          </div>
+        ) : (
+          <div className="no-project-selected">
+            <Folder size={64} />
+            <h2>Select a repository to view details</h2>
+          </div>
+        )}
+      </main>
+
+      {/* Edit Project Modal */}
+      {isEditModalOpen && (
+        <div className="modal-overlay">
+          <div className="modal-content-professional card">
+            <div className="modal-header">
+              <h2>Edit Repository Settings</h2>
+              <button className="btn-icon" onClick={() => setIsEditModalOpen(false)}><X size={20} /></button>
+            </div>
+            <form onSubmit={handleUpdateProject} className="modal-form">
+              <div className="form-group">
+                <label>Project Title</label>
+                <input
+                  type="text"
+                  required
+                  value={editFormData.title}
+                  onChange={e => setEditFormData({ ...editFormData, title: e.target.value })}
+                />
+              </div>
+              <div className="form-group">
+                <label>Repository URL (Bitbucket)</label>
+                <input
+                  type="url"
+                  placeholder="https://bitbucket.org/..."
+                  value={editFormData.repositoryUrl}
+                  onChange={e => setEditFormData({ ...editFormData, repositoryUrl: e.target.value })}
+                />
+              </div>
+              <div className="form-group">
+                <label>System Description</label>
+                <textarea
+                  value={editFormData.description}
+                  onChange={e => setEditFormData({ ...editFormData, description: e.target.value })}
+                ></textarea>
+              </div>
+              <div className="modal-footer">
+                <button type="button" className="btn-secondary" onClick={() => setIsEditModalOpen(false)}>Cancel</button>
+                <button type="submit" className="btn-primary">Save Changes</button>
+              </div>
+            </form>
+          </div>
+        </div>
       )}
 
-      {showTaskModal && selectedProject && (
-        <TaskModal
-          task={editingTask}
-          projectId={selectedProject._id}
-          users={users}
-          onClose={handleModalClose}
-        />
-      )}
-    </div>
+      {toast.show && (
+        <div className={`toast-container-task ${toast.type}`}>
+          <div className="toast-content">
+            {toast.type === 'success' ? <CheckCircle2 size={20} /> : <Activity size={20} />}
+            <span>{toast.message}</span>
+          </div>
+        </div>
+      )
+      }
+    </div >
   );
 };
 
 export default Projects;
-

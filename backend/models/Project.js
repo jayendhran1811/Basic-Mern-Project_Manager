@@ -10,15 +10,50 @@ const projectSchema = new mongoose.Schema({
     type: String,
     trim: true
   },
+  clientName: {
+    type: String,
+    trim: true
+  },
+  repositoryUrl: {
+    type: String,
+    trim: true
+  },
   status: {
     type: String,
-    enum: ['planning', 'in-progress', 'completed', 'on-hold'],
-    default: 'planning'
+    enum: ['not-started', 'ongoing', 'on-hold', 'delayed', 'completed'],
+    default: 'not-started'
   },
   priority: {
     type: String,
     enum: ['low', 'medium', 'high'],
     default: 'medium'
+  },
+  technologyStack: [{
+    type: String,
+    trim: true
+  }],
+  methodology: {
+    type: String,
+    enum: ['Agile', 'Scrum', 'Waterfall', 'Kanban', 'Hybrid'],
+    default: 'Agile'
+  },
+  requirements: {
+    type: String,
+    trim: true
+  },
+  projectOwner: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: true
+  },
+  assignedEmployees: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User'
+  }],
+  organizationId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Organization',
+    required: true
   },
   startDate: {
     type: Date,
@@ -27,15 +62,19 @@ const projectSchema = new mongoose.Schema({
   endDate: {
     type: Date
   },
-  userId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
-    required: true
+  actualEndDate: {
+    type: Date
   },
   tasks: [{
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Task'
   }],
+  progress: {
+    type: Number,
+    default: 0,
+    min: 0,
+    max: 100
+  },
   createdAt: {
     type: Date,
     default: Date.now
@@ -46,7 +85,7 @@ const projectSchema = new mongoose.Schema({
   }
 });
 
-projectSchema.pre('save', function(next) {
+projectSchema.pre('save', function (next) {
   this.updatedAt = Date.now();
   next();
 });
