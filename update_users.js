@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const User = require('./backend/models/User');
 
-const MONGODB_URI = 'mongodb+srv://jayyuntoldz2004_db_user:KLeAGBzrEq7BKtEb@cluster0.n6phvay.mongodb.net/projectmanager?retryWrites=true&w=majority&appName=Cluster0';
+const MONGODB_URI = '';
 
 const updateUsers = async () => {
     try {
